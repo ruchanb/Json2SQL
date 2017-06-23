@@ -1,0 +1,68 @@
+<html>
+<head>
+    <title>
+        Convert Json Data to SQL Select Script
+    </title>
+    <script src="json2sql.js" type="text/javascript"></script>
+    <script>
+        function convert(button) {
+            var temp=button.disabled;
+            button.disabled=true;
+            var json = document.getElementById("txtJson").value;
+            var selectQuery = Json2Sql.GetSql(json);
+            document.getElementById('sqlDisplay').innerHTML = selectQuery;
+            button.disabled=temp;
+        }
+        function copytoClipboard(button){
+            var temp=button.disabled;
+            button.disabled=true;
+           
+            let t = document.createElement('textarea')
+            t.id = 't001_sql'
+            // Optional step to make less noise in the page, if any!
+            t.style.height = 0
+            // You have to append it to your page somewhere, I chose <body>
+            document.body.appendChild(t)
+            // Copy whatever is in your div to our new textarea
+            t.value = document.getElementById('sqlDisplay').innerText
+            // Now copy whatever inside the textarea to clipboard
+            let selector = document.getElementById('t001_sql')
+            selector.select()
+            
+            try {
+                var successful = document.execCommand('copy');
+                var msg = successful ? 'successful' : 'unsuccessful';
+                console.log('Copying text command was ' + msg);
+            } catch (err) {
+                console.log('Oops, unable to copy');
+            }
+            t.remove();
+            button.disabled=temp;
+        }
+    </script>
+    <style>
+        
+        textarea {
+            width: 90%;
+            border: 2px solid black;
+            height: 400px;
+        }
+        
+        #sqlDisplay {
+            unicode-bidi: embed;
+            font-family: monospace, "courier new";
+            white-space: pre;
+            font-size:80%;
+        }
+    </style>
+</head>
+<body>
+    <textarea id="txtJson" placeholder="Enter your json string here">
+</textarea>
+    <div>
+        <button onclick="convert(this);">Convert to SQL</button> &nbsp;
+        <button onclick="copytoClipboard(this);">Copy to Clipboard</button>
+    </div>
+    <div id="sqlDisplay"></div>
+</body>
+</html>
