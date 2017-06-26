@@ -1,6 +1,7 @@
 
 var Json2Sql = (function json2SQL() {
     "use strict";
+    var options = { ColumnType: 0 };// 0 for auto, 1 for according to key.
     function validateJson(jsonString) {
         var jsonData = JSON.parse(jsonString);
         if (typeof jsonData !== 'undefined' && (jsonData.length == undefined || jsonData.length == 0)) {
@@ -16,10 +17,10 @@ var Json2Sql = (function json2SQL() {
         return values;
     }
     var naming = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    function getColumnName(index) {
+    function getAutoColumnName(index) {
         if (index < naming.length) return naming[index];
         var steps = Math.floor(index / naming.length);
-        return naming[steps] + getColumnName(index % naming.length)
+        return naming[steps] + getAutoColumnName(index % naming.length)
 
     }
     function getSelectRow(itemObj, currentIndex, arrayObj) {
@@ -28,19 +29,24 @@ var Json2Sql = (function json2SQL() {
         var keyCounter = 0;
         for (var i = 0; i < items.length; i++) {
             var val = itemObj[items[i]];
-            if(typeof val==="object"){
-                continue;
+            if (typeof val === "object") {
+                if (val != null) {
+                    continue;
+                }else{
+                    select+="null";
+                }
             }
             else if (typeof val === "string") {
-                select += "'" + val + "'" ;
+                val = val.replace("'", "''");// escape single quotes
+                select += "'" + val + "'";
             }
             else {
-                select += val ;
+                select += val;
             }
-            if(currentIndex==0){
-                select+=" as "+getColumnName(i);
+            if (currentIndex == 0) {
+                select += " as " + (options.ColumnType == "0" ? getAutoColumnName(i) : items[i]);
             }
-            select+= (i == (items.length-1) ? "" : ", ");
+            select += (i == (items.length - 1) ? "" : ", ");
         }
 
         return select;
@@ -57,7 +63,12 @@ var Json2Sql = (function json2SQL() {
         });
         return selectQuery;
     }
+    function getOptValue() {
+        console.log(options);
+    }
     return {
-        GetSql: getSql
+        Options: options,
+        GetSql: getSql,
+        getOptValue: getOptValue
     };
 })();
