@@ -37,7 +37,7 @@ var Json2Sql = (function json2SQL() {
                 }
             }
             else if (typeof val === "string") {
-                val = val.replace("'", "''");// escape single quotes
+                val = val.replace(/'/g,"''");// escape single quotes
                 select += "'" + val + "'";
             }
             else {
